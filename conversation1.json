@@ -1,0 +1,65 @@
+[
+	{
+		"text" : "Hey dude!<br>you're new at this town!",
+		"name" : "Monika"
+	},
+	{
+		"text" : "what's your name?",
+		"name" : "Monika",
+		"responses" : [
+			{
+				"text" : "I don't feel comfortable sharing my name",
+				"next" : 2
+			},
+			{
+				"text" : "my name is {{name}}",
+				"next" : 3
+			}
+		]
+	},
+	{
+		"text" : "oh he's shy Monika",
+		"name" : "Rachel",
+		"next" : 4
+	},
+	{
+		"text" : "oh what a lovely name {{name}}",
+		"name" : "Monika"
+	},
+	{
+		"text" : "Hey my name is Rachel",
+		"name" : "Rachel"
+	},
+	{
+		"text" : "He seems nice doesn't he?",
+		"name" : "Monika",
+		"responses" : [
+			{
+				"text" : "oh thanks",
+				"next" : "lbl1"
+			},
+			{
+				"text" : "you're coming on a little to strong",
+				"next" : "lbl2"
+			}
+		]
+	},
+	{
+		"label" : "lbl1",
+		"text" : "do you have a place to stay at sugar",
+		"name" : "Rachel",
+		"next" : "END"
+	},
+	{
+		"label" : "lbl2",
+		"text" : "oh you're so cute",
+		"name" : "Monika",
+		"next" : "lbl1"
+	},
+	{
+		"label" : "END",
+		"name" : "END",
+		"text" : "END"
+	}
+
+]

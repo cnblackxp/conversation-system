@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title></title>
+</head>
+<body>
+	<input id="conversation_user" type="text" placeholder="Enter your name"><button onclick="items.name = conversation_user.value;conversation_user.remove();this.remove();">Enter</button>
+
+	<h3 id="conversation_name">name</h3>
+	<p id="conversation_container">
+		conversation
+	</p>
+	<ul id="conversation_responses">
+		<li><button>option</button></li>
+		<li><button>option</button></li>
+		<li><button>option</button></li>
+	</ul>
+
+	<script type="text/javascript">
+		const load = filename => 
+			new Promise(resolve => {
+				const xhr = new XMLHttpRequest();
+				xhr.onload = () => resolve(xhr.responseText);
+				xhr.open('GET', filename, true);
+				xhr.send();
+			});
+
+		const setConversation = conv => {
+
+		}
+
+		const button = (text, cb) => {
+			const li = document.createElement('li');
+			const btn = document.createElement('button');
+			btn.innerHTML = text;
+			btn.addEventListener('click', cb);
+			li.appendChild(btn);
+			return li;
+		}
+
+
+		const items = {
+				name : "momo"
+			}
+
+		const replace = (text) => {
+			
+			while(text.indexOf('{{') !== -1) {
+
+				let item = text.substring(text.indexOf('{{') + 2, text.indexOf('}}'))
+				console.log(item);
+				let word = '';
+				if (items[item]) {
+					word = items[item];
+				} else {
+					word = '????'
+				}
+				console.log(word);
+				text = text.substring(0, text.indexOf('{{')) + word + text.substr(text.indexOf('}}') + 2)
+				console.log(text);
+
+			}
+			return text;
+
+		}
+
+		const find = (arr, lbl) => {
+			for (let i = 0; i < arr.length; i ++) {
+				if (arr[i].label === lbl) {
+					return i;
+				}
+			}
+			return -1;
+		}
+
+		const Conversation = (conv, current) => {
+			conversation_name.innerHTML = conv[current].name;
+			conv[current].text = replace(conv[current].text)
+			conversation_container.innerHTML = conv[current].text;
+			if (conv[current].responses) {
+				conversation_responses.innerHTML = "";
+				for (let i = 0; i < conv[current].responses.length; i ++) {
+					conversation_responses.appendChild(
+						button(replace(conv[current].responses[i].text) ,() => {
+							if (isNaN(conv[current].responses[i].next)) {
+								conv[current].responses[i].next = find(conv, conv[current].responses[i].next);
+							}
+							Conversation(conv, conv[current].responses[i].next);
+						})
+					)
+				}
+			} else {
+				conversation_responses.innerHTML = "";
+				conversation_responses.appendChild(button('next' , () => {
+					if (current >= conv.length-1) {
+						conversation_name.innerHTML = "";
+						conversation_container.innerHTML = "end!";
+						conversation_responses.innerHTML = "";
+					} 
+					else {
+						if (conv[current].next) {
+							if (isNaN(conv[current].next)) {
+								conv[current].next = find(conv, conv[current].next);
+							}
+							Conversation(conv, conv[current].next);
+						} 
+						else
+							Conversation(conv, current+1);
+					}
+				}))
+			}
+
+		}
+
+		load('conversation2.json')
+			.then(res => {
+				const conversation = JSON.parse(res);
+				Conversation(conversation, 0);
+			})
+	</script>
+</body>
+</html>

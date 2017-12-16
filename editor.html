@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title></title>
+	<style type="text/css">
+		table {
+			margin : 10px;
+		}
+		td{
+			width : 300px;
+		}
+		select, option {
+			max-width : 300px;
+		}
+	</style>
+</head>
+<body>
+	<textarea id="json_container"></textarea><button onclick="generateJSON()">Generate JSON</button><br>
+	<input id="conversation_name" placeholder="enter names"><button onclick="addName()">Add Name</button><br>
+	<ul id="list_of_names">
+	</ul>
+	<div id='bodyyy'>
+	</div>
+	<button onclick="Node();">Add Node</button>
+	<!-- <table>
+		<tr><td>Enter Name</td><td><select id="node_name_${index}">${generateNames()}</select></td></tr>
+		<tr><td>Enter Text</td><td><textarea id="node_text_${index}"></textarea></td></tr>
+		<tr>
+			<td>Responses</td>
+			<td>
+				<button index="node_responses_${index}_button" onclick="">+</button>
+				<ul>
+					<li>
+						<table>
+							<tr><td>Enter Text</td><td><textarea id="node_responses_${index}_text"></textarea></td></tr>
+						</table>
+					</li>
+				</ul>
+			</td>
+		</tr>
+	</table> -->
+	<script type="text/javascript">
+		const generateJSON = () => {
+			const convo = [];
+			/*{
+		"text" : "what's your name?",
+		"name" : "Monika",
+		"responses" : [
+			{
+				"text" : "I don't feel comfortable sharing my name",
+				"next" : 2
+			},
+			{
+				"text" : "my name is {{name}}",
+				"next" : 3
+			}
+		]
+	},*/
+			conversation_el.forEach(el => {
+				let obj = {
+					text : el.text_el.value,
+					name : el.name_el.options[el.name_el.selectedIndex].innerHTML
+				}
+				//console.log(el.next_el.selectedIndex)
+				if (el.next_el.selectedIndex !== 0) {
+					obj.next = el.next_el.options[el.next_el.selectedIndex].innerHTML
+				}
+				const responses = [];
+				//console.log(el.responses_el.childNodes);
+				for (let i = 0; i < el.responses_el.childNodes.length; i ++) {
+					const response = el.responses_el.childNodes[i];
+					const response_text = document.querySelector(`#node_${el.index}_responses>li:nth-child(${i+1})>table>tbody>tr:nth-child(1)>td>textarea`).value;
+					let response_next = document.querySelector(`#node_${el.index}_responses>li:nth-child(${i+1})>table>tbody>tr:nth-child(2)>td>select`);
+					response_next = response_next.options[response_next.selectedIndex].innerHTML;
+					console.log(response_next)
+					responses.push({
+						text : response_text,
+						next : response_next
+					})
+				}
+				if (responses.length > 0) {
+					obj.responses = responses;
+				}
+				convo.push(obj);
+
+			})
+			json_container.value = JSON.stringify(convo);
+		}
+
+		const conversation_el = [];
+
+		const conversation_names = [];
+		const generateNames = () => {
+			let html = "";
+			for (let key in conversation_names) 
+				html += `<option>${conversation_names[key]}</option>`;
+			return html;
+		}
+		const generateNodeList = () => {
+			let html = "<option>-</option>";
+			for (let key in conversation_el) 
+				html += `<option>${conversation_el[key].index}</option>`;
+			return html;
+
+		} 
+		const addName = () => {
+			conversation_names.push(conversation_name.value);
+			list_of_names.innerHTML += `<li>${conversation_name.value}</li>`;
+			conversation_name.value = "";
+
+			document.querySelectorAll(".node_name").forEach(el => {
+				let selected = el.selectedIndex;
+				el.innerHTML = generateNames();
+				el.selectedIndex = selected;
+			});
+		}
+		const addResponse = (index) => {
+			if (isNaN)
+				index = parseInt(index);
+			document.querySelector(`#node_${index}_responses`).innerHTML += 
+			`<li>
+				<table>
+					<tr><td>Enter Text</td><td><textarea id="node_${index}_responses_text"></textarea></td></tr>
+					<tr><td>Next</td><td><select class="node_next" id="node_${index}_responses_next">${generateNodeList()}</select></td></tr>
+				</table>
+			</li>`;
+		}
+		const Node = () => {
+			const index = conversation_el.length;
+			const div = document.createElement('div');
+			const html = 
+			`<table>
+				<tr><th rowspan="5" style="width: 30px">${index}</th></tr>
+				<tr><td>Name</td><td><select class="node_name" id="node_${index}_name">${generateNames()}</select></td></tr>
+				<tr><td>Text</td><td><textarea cols="40" rows="5" id="node_${index}_text"></textarea></td></tr>
+				<tr><td>Next</td><td><select class="node_next" id="node_${index}_next">${generateNodeList()}</select></td></tr>
+				<tr>
+					<td>Responses</td>
+					<td>
+						<button index="${index}" onclick="addResponse(this.getAttribute('index'))">+</button>
+						<ul id="node_${index}_responses"></ul>
+					</td>
+				</tr>
+			</table>`;
+			div.innerHTML = html;
+
+			bodyyy.appendChild(div);
+
+			const node = {
+				index : index,
+				name_el : document.querySelector(`#node_${index}_name`), 
+				text_el : this[`node_${index}_text`], 
+				next_el : this[`node_${index}_next`],
+				responses_el : this[`node_${index}_responses`], 
+			}
+
+			conversation_el.push(node);
+			document.querySelectorAll(".node_next").forEach(el => {
+				let selected = el.selectedIndex;
+				el.innerHTML = generateNodeList();
+				el.selectedIndex = selected;
+			});
+			return node;
+		}
+
+	</script>
+</body>
+</html>
